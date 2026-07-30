@@ -242,6 +242,37 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	left_captures &= enemy_occ;
 	right_captures &= enemy_occ;
 
+	// promotions
+	u64 left_capture_promotions = left_captures & RANK_8;
+	u64 right_capture_promotions = right_captures & RANK_8;
+
+	left_captures &= ~RANK_8;
+	right_captures &= ~RANK_8;
+
+	// push moves
+
+	while (left_capture_promotions != 0) {
+	    int dest = LsbIndex(left_capture_promotions);
+
+	    MoveListPush(movelist, MoveNew(dest - 7, dest) | KNIGHT_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 7, dest) | BISHOP_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 7, dest) | ROOK_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 7, dest) | QUEEN_PROMO_CAPTURE);
+
+	    PopLsb(&left_capture_promotions);
+	}
+	
+	while (right_capture_promotions != 0) {
+	    int dest = LsbIndex(right_capture_promotions);
+
+	    MoveListPush(movelist, MoveNew(dest - 9, dest) | KNIGHT_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 9, dest) | BISHOP_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 9, dest) | ROOK_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest - 9, dest) | QUEEN_PROMO_CAPTURE);
+
+	    PopLsb(&right_capture_promotions);
+	}
+
 	while (left_captures != 0) {
 	    int dest = LsbIndex(left_captures);
 
@@ -280,6 +311,37 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 
 	left_captures &= enemy_occ;
 	right_captures &= enemy_occ;
+
+	// promotions
+	u64 left_capture_promotions = left_captures & RANK_1;
+	u64 right_capture_promotions = right_captures & RANK_1;
+
+	left_captures &= ~RANK_1;
+	right_captures &= ~RANK_1;
+
+	// push moves
+
+	while (left_capture_promotions != 0) {
+	    int dest = LsbIndex(left_capture_promotions);
+
+	    MoveListPush(movelist, MoveNew(dest + 9, dest) | KNIGHT_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 9, dest) | BISHOP_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 9, dest) | ROOK_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 9, dest) | QUEEN_PROMO_CAPTURE);
+
+	    PopLsb(&left_capture_promotions);
+	}
+	
+	while (right_capture_promotions != 0) {
+	    int dest = LsbIndex(right_capture_promotions);
+
+	    MoveListPush(movelist, MoveNew(dest + 7, dest) | KNIGHT_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 7, dest) | BISHOP_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 7, dest) | ROOK_PROMO_CAPTURE);
+	    MoveListPush(movelist, MoveNew(dest + 7, dest) | QUEEN_PROMO_CAPTURE);
+
+	    PopLsb(&right_capture_promotions);
+	}
 
 	while (left_captures != 0) {
 	    int dest = LsbIndex(left_captures);
