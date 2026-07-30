@@ -132,6 +132,173 @@ void PseudoCaptureKingGen(Board *board, MoveList *movelist) {
     // we dont check for castle rights for king capture moves
 }
 
-// Pawns! yay yahoo!
+void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
 
+    u64 pawns = board->pieces[colour][Pawn];
+    u64 free = ~board->occupancy[ALL];
+
+    // if white
+    if (colour == White) {
+	// make attack bitboards
+	u64 single_push = (pawns << 8) & free;
+	u64 double_push = ((single_push & RANK_3) << 8) & free;
+	u64 promotion = (single_push & RANK_8);
+	single_push &= ~RANK_8;
+
+	// push moves
+	while (single_push != 0) {
+	    int dest = LsbIndex(single_push);
+
+	    MoveListPush(movelist, MoveNew(dest - 8, dest));
+
+	    PopLsb(&single_push);
+	}
+
+	while (double_push != 0) {
+	    int dest = LsbIndex(double_push);
+
+	    MoveListPush(movelist, MoveNew(dest - 16, dest) | DOUBLE_PAWN_PUSH);
+
+	    PopLsb(&double_push);
+	}
+
+	while (promotion != 0) {
+	    int dest = LsbIndex(promotion);
+
+	    MoveListPush(movelist, MoveNew(dest - 8, dest) | KNIGHT_PROMO);
+	    MoveListPush(movelist, MoveNew(dest - 8, dest) | BISHOP_PROMO);
+	    MoveListPush(movelist, MoveNew(dest - 8, dest) | ROOK_PROMO);
+	    MoveListPush(movelist, MoveNew(dest - 8, dest) | QUEEN_PROMO);
+
+	    PopLsb(&promotion);
+	}
+
+    // if black
+    } else {
+	// make attack bitboards
+	u64 single_push = (pawns >> 8) & free;
+	u64 double_push = ((single_push & RANK_6) >> 8) & free;
+	u64 promotion = (single_push & RANK_1);
+	single_push &= ~RANK_1;
+
+	// push moves
+	while (single_push != 0) {
+	    int dest = LsbIndex(single_push);
+
+	    MoveListPush(movelist, MoveNew(dest + 8, dest));
+
+	    PopLsb(&single_push);
+	}
+
+	while (double_push != 0) {
+	    int dest = LsbIndex(double_push);
+
+	    MoveListPush(movelist, MoveNew(dest + 16, dest) | DOUBLE_PAWN_PUSH);
+
+	    PopLsb(&double_push);
+	}
+
+	while (promotion != 0) {
+	    int dest = LsbIndex(promotion);
+
+	    MoveListPush(movelist, MoveNew(dest + 8, dest) | KNIGHT_PROMO);
+	    MoveListPush(movelist, MoveNew(dest + 8, dest) | BISHOP_PROMO);
+	    MoveListPush(movelist, MoveNew(dest + 8, dest) | ROOK_PROMO);
+	    MoveListPush(movelist, MoveNew(dest + 8, dest) | QUEEN_PROMO);
+
+	    PopLsb(&promotion);
+	}
+    }
+}
+
+void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+
+    u64 pawns = board->pieces[colour][Pawn];
+    u64 enemy_occ = board->occupancy[InverseColour(colour)];
+
+    // if white
+    if (colour == White) {
+	u64 left_captures = ((pawns << 7) & ~FILE_H);
+	u64 right_captures = ((pawns << 9) & ~FILE_A);
+
+	// if en passant sqaure exists check if we can capture
+	if (board->enpassant_tsq != NullSquare) {
+	    u64 enpassant_tsq_bb = (1ULL << board->enpassant_tsq);
+
+	    int left_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+	    int right_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+
+	    if (left_enpassant != NullSquare) {
+		MoveListPush(movelist, MoveNew(left_enpassant - 7, left_enpassant) | EP_CAPTURE);
+	    }
+
+	    if (right_enpassant != NullSquare) {
+		MoveListPush(movelist, MoveNew(left_enpassant - 9, left_enpassant) | EP_CAPTURE);
+	    }
+	}
+
+	left_captures &= enemy_occ;
+	right_captures &= enemy_occ;
+
+	while (left_captures != 0) {
+	    int dest = LsbIndex(left_captures);
+
+	    MoveListPush(movelist, MoveNew(dest - 7, dest) | CAPTURE);
+
+	    PopLsb(&left_captures);
+	}
+
+	while (right_captures != 0) {
+	    int dest = LsbIndex(right_captures);
+
+	    MoveListPush(movelist, MoveNew(dest - 9, dest) | CAPTURE);
+
+	    PopLsb(&right_captures);
+	}
+    // if black
+    } else {
+	u64 left_captures = ((pawns >> 9) & ~FILE_H);
+	u64 right_captures = ((pawns >> 7) & ~FILE_A);
+
+	// if en passant sqaure exists check if we can capture
+	if (board->enpassant_tsq != NullSquare) {
+	    u64 enpassant_tsq_bb = (1ULL << board->enpassant_tsq);
+
+	    int left_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+	    int right_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+
+	    if (left_enpassant != NullSquare) {
+		MoveListPush(movelist, MoveNew(left_enpassant + 9, left_enpassant) | EP_CAPTURE);
+	    }
+
+	    if (right_enpassant != NullSquare) {
+		MoveListPush(movelist, MoveNew(left_enpassant + 7, left_enpassant) | EP_CAPTURE);
+	    }
+	}
+
+	left_captures &= enemy_occ;
+	right_captures &= enemy_occ;
+
+	while (left_captures != 0) {
+	    int dest = LsbIndex(left_captures);
+
+	    MoveListPush(movelist, MoveNew(dest + 9, dest) | CAPTURE);
+
+	    PopLsb(&left_captures);
+	}
+
+	while (right_captures != 0) {
+	    int dest = LsbIndex(right_captures);
+
+	    MoveListPush(movelist, MoveNew(dest + 7, dest) | CAPTURE);
+
+	    PopLsb(&right_captures);
+	}
+
+    }
+}
+
+// sliders
 
