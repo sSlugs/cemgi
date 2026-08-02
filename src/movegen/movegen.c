@@ -10,7 +10,7 @@ void PseudoQuietKnightGen(Board *board, MoveList *movelist) {
     u64 knights = board->pieces[board->turn][Knight];
 
     // iterate through all knights of current turn's colour
-    while (knights != 0) {
+    while (knights) {
 	// gets index 0-63 by finding LSB so we can avoid long for loop
 	int source = LsbIndex(knights);
 
@@ -38,7 +38,7 @@ void PseudoCaptureKnightGen(Board *board, MoveList *movelist) {
     u64 knights = board->pieces[colour][Knight];
 
     // iterate through all knights of current turn's colour
-    while (knights != 0) {
+    while (knights) {
 	int source = LsbIndex(knights);
 
 	// since its capture we only care about knight moves that land on enemy pieces
@@ -69,7 +69,7 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
     u64 dest_bb = KING_ATTACKS[source] & ~board->occupancy[ALL];
 
     // iterate through all the destinations
-    while (dest_bb != 0) {
+    while (dest_bb) {
 	int dest = LsbIndex(dest_bb);
 
 	Move move = MoveNew(source,dest);
@@ -119,7 +119,7 @@ void PseudoCaptureKingGen(Board *board, MoveList *movelist) {
     u64 dest_bb = KING_ATTACKS[source] & board->occupancy[InverseColour(colour)];
 
     // iterate through all the destinations
-    while (dest_bb != 0) {
+    while (dest_bb) {
 	int dest = LsbIndex(dest_bb);
 
 	Move move = MoveNew(source,dest) | CAPTURE;
@@ -147,7 +147,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	single_push &= ~RANK_8;
 
 	// push moves
-	while (single_push != 0) {
+	while (single_push) {
 	    int dest = LsbIndex(single_push);
 
 	    MoveListPush(movelist, MoveNew(dest - 8, dest));
@@ -155,7 +155,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&single_push);
 	}
 
-	while (double_push != 0) {
+	while (double_push) {
 	    int dest = LsbIndex(double_push);
 
 	    MoveListPush(movelist, MoveNew(dest - 16, dest) | DOUBLE_PAWN_PUSH);
@@ -163,7 +163,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&double_push);
 	}
 
-	while (promotion != 0) {
+	while (promotion) {
 	    int dest = LsbIndex(promotion);
 
 	    MoveListPush(movelist, MoveNew(dest - 8, dest) | KNIGHT_PROMO);
@@ -183,7 +183,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	single_push &= ~RANK_1;
 
 	// push moves
-	while (single_push != 0) {
+	while (single_push) {
 	    int dest = LsbIndex(single_push);
 
 	    MoveListPush(movelist, MoveNew(dest + 8, dest));
@@ -191,7 +191,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&single_push);
 	}
 
-	while (double_push != 0) {
+	while (double_push) {
 	    int dest = LsbIndex(double_push);
 
 	    MoveListPush(movelist, MoveNew(dest + 16, dest) | DOUBLE_PAWN_PUSH);
@@ -199,7 +199,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&double_push);
 	}
 
-	while (promotion != 0) {
+	while (promotion) {
 	    int dest = LsbIndex(promotion);
 
 	    MoveListPush(movelist, MoveNew(dest + 8, dest) | KNIGHT_PROMO);
@@ -251,7 +251,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 
 	// push moves
 
-	while (left_capture_promotions != 0) {
+	while (left_capture_promotions) {
 	    int dest = LsbIndex(left_capture_promotions);
 
 	    MoveListPush(movelist, MoveNew(dest - 7, dest) | KNIGHT_PROMO_CAPTURE);
@@ -262,7 +262,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&left_capture_promotions);
 	}
 	
-	while (right_capture_promotions != 0) {
+	while (right_capture_promotions) {
 	    int dest = LsbIndex(right_capture_promotions);
 
 	    MoveListPush(movelist, MoveNew(dest - 9, dest) | KNIGHT_PROMO_CAPTURE);
@@ -273,7 +273,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&right_capture_promotions);
 	}
 
-	while (left_captures != 0) {
+	while (left_captures) {
 	    int dest = LsbIndex(left_captures);
 
 	    MoveListPush(movelist, MoveNew(dest - 7, dest) | CAPTURE);
@@ -281,7 +281,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&left_captures);
 	}
 
-	while (right_captures != 0) {
+	while (right_captures) {
 	    int dest = LsbIndex(right_captures);
 
 	    MoveListPush(movelist, MoveNew(dest - 9, dest) | CAPTURE);
@@ -321,7 +321,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 
 	// push moves
 
-	while (left_capture_promotions != 0) {
+	while (left_capture_promotions) {
 	    int dest = LsbIndex(left_capture_promotions);
 
 	    MoveListPush(movelist, MoveNew(dest + 9, dest) | KNIGHT_PROMO_CAPTURE);
@@ -332,7 +332,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&left_capture_promotions);
 	}
 	
-	while (right_capture_promotions != 0) {
+	while (right_capture_promotions) {
 	    int dest = LsbIndex(right_capture_promotions);
 
 	    MoveListPush(movelist, MoveNew(dest + 7, dest) | KNIGHT_PROMO_CAPTURE);
@@ -343,7 +343,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&right_capture_promotions);
 	}
 
-	while (left_captures != 0) {
+	while (left_captures) {
 	    int dest = LsbIndex(left_captures);
 
 	    MoveListPush(movelist, MoveNew(dest + 9, dest) | CAPTURE);
@@ -351,7 +351,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    PopLsb(&left_captures);
 	}
 
-	while (right_captures != 0) {
+	while (right_captures) {
 	    int dest = LsbIndex(right_captures);
 
 	    MoveListPush(movelist, MoveNew(dest + 7, dest) | CAPTURE);
@@ -364,3 +364,10 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 
 // sliders
 
+void PseudoQuietRookGen(Board *board, MoveList *movelist) {
+
+}
+
+void PseudoCaptureRookGen(Board *board, MoveList *movelist) {
+
+}

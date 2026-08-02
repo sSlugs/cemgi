@@ -21,9 +21,6 @@ typedef struct {
     // 0 white, 1 black, 2 all
     u64 occupancy[3];
 
-    // array of all pieces. 0 = A1, 63 = H8
-    Piece mailbox[64];
-
     // current turn
     Colour turn;
 
@@ -35,6 +32,9 @@ typedef struct {
 
     // halfmove clock, useful for 50 move rule (100 halfmoves)
     u8 halfmove_clock;
+
+    // array of all pieces. 0 = A1, 63 = H8
+    Piece mailbox[64];
 } Board;
 
 // creates a new board in startpos

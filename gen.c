@@ -8,8 +8,133 @@
 //
 
 int main(void) {
+    BishopMasksAndBits();
 
     return 0;
+}
+
+void BishopMasksAndBits(void) {
+    // Masks
+    
+    printf("Bishop masks: \n");
+    printf("{\n");
+    for (int i = 0; i < 64; i++) {
+	u64 attacks = BishopAttacksOnFly(i, 0ULL);
+	if (i % 4 == 0 && i != 0) {
+	    printf("\n");
+	}
+
+	int row = i / 8;
+	int col = i % 8;
+
+	if (row == 0 || row == 7) {
+	    attacks &= ~RANKS[7 - row];
+	} else {
+	    attacks &= ~(RANK_1 | RANK_8);
+	}
+
+	if (col == 0 || col == 7) {
+	    attacks &= ~FILES[7 - col];
+	} else {
+	    attacks &= ~(FILE_A | FILE_H);
+	}
+
+	printf("0x%" PRIx64 "ULL, ",attacks);
+    }
+    printf("\n}\n");
+
+    // Bits
+    
+    printf("\n\nBishop relevant bits: \n");
+
+    printf("{\n");
+    for (int i = 0; i < 64; i++) {
+	u64 attacks = BishopAttacksOnFly(i, 0ULL);
+	 
+	if (i % 8 == 0 && i != 0) {
+	    printf("\n");
+	}
+
+	int row = i / 8;
+	int col = i % 8;
+
+	if (row == 0 || row == 7) {
+	    attacks &= ~RANKS[7 - row];
+	} else {
+	    attacks &= ~(RANK_1 | RANK_8);
+	}
+
+	if (col == 0 || col == 7) {
+	    attacks &= ~FILES[7 - col];
+	} else {
+	    attacks &= ~(FILE_A | FILE_H);
+	}
+
+	printf("0x%x, ",PopCountU64(attacks));
+    }
+    printf("\n}\n");
+}
+
+void RookMasksAndBits(void) {
+    // Masks
+    
+    printf("Rook masks: \n");
+    printf("{\n");
+    for (int i = 0; i < 64; i++) {
+	u64 attacks = RookAttacksOnFly(i, 0ULL);
+	if (i % 4 == 0 && i != 0) {
+	    printf("\n");
+	}
+
+	int row = i / 8;
+	int col = i % 8;
+
+	if (row == 0 || row == 7) {
+	    attacks &= ~RANKS[7 - row];
+	} else {
+	    attacks &= ~(RANK_1 | RANK_8);
+	}
+
+	if (col == 0 || col == 7) {
+	    attacks &= ~FILES[7 - col];
+	} else {
+	    attacks &= ~(FILE_A | FILE_H);
+	}
+
+	printf("0x%" PRIx64 "ULL, ",attacks);
+    }
+    printf("\n}\n");
+
+    // Bits
+    
+    printf("\n\nRook relevant bits: \n");
+
+    printf("{\n");
+    for (int i = 0; i < 64; i++) {
+	u64 attacks = RookAttacksOnFly(i, 0ULL);
+	 
+	if (i % 8 == 0 && i != 0) {
+	    printf("\n");
+	}
+
+	int row = i / 8;
+	int col = i % 8;
+
+	if (row == 0 || row == 7) {
+	    attacks &= ~RANKS[7 - row];
+	} else {
+	    attacks &= ~(RANK_1 | RANK_8);
+	}
+
+	if (col == 0 || col == 7) {
+	    attacks &= ~FILES[7 - col];
+	} else {
+	    attacks &= ~(FILE_A | FILE_H);
+	}
+
+	printf("0x%x, ",PopCountU64(attacks));
+    }
+    printf("\n}\n");
 }
 
 // King attacks 
@@ -52,3 +177,4 @@ void KnightAttacks(void) {
     }
     printf("}\n");
 };
+

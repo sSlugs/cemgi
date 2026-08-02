@@ -1,6 +1,10 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Iinclude -g
+# development (no Wall or Wextra bc the "unused include" is far too annoying)
+CFLAGS = -Iinclude -g -O0
+
+# release
+# CFLAGS = -Wall -Wextra -Iinclude -g -O3
 
 SRC_DIR = src
 BUILD_DIR = build
