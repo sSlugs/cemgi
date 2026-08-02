@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "stdbool.h"
 #include "utils/types.h"
+#include <stdio.h>
 
 #define NULL_BITBOARD 0xffffffffffffffffULL
 
@@ -34,6 +35,7 @@ static inline u64 RookAttackFromSquare(Square square, u64 occupancy) {
 }
 
 static inline u64 BishopAttackFromSquare(Square square, u64 occupancy) {
+    printf("index: 0x%" PRIx64 "\n",((occupancy & BISHOP_MASKS[square]) * BISHOP_MAGICS[square]) >> (64 - BISHOP_RELEVANT_BITS[square]));
     return BISHOP_ATTACKS[square][((occupancy & BISHOP_MASKS[square]) * BISHOP_MAGICS[square]) >> (64 - BISHOP_RELEVANT_BITS[square])];
 }
 
