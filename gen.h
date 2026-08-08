@@ -52,6 +52,8 @@ const u64 FILES[8] = {
     FILE_H,
 };
 
+void PawnAttacks(void);
+
 void KnightAttacks(void);
 void KingAttacks(void);
 void SquareMasks(void);

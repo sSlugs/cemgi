@@ -7,97 +7,83 @@
 #include "utils/types.h"
 #include "movegen/magics.h"
 
-static u64 BishopAttacksOnFly(Square square, u64 occupancy) {
-    u64 attacks = 0;
-    u64 base = 1ULL << square;
-    u64 empty = ~occupancy;
-
-    u64 attack;
-
-    // north-east ray
-    attack = base; 
-    do {
-	attack = (attack << 9) & ~FILE_A;
-	attacks |= attack;
-    } while (attack & empty);
-
-    // north-west ray
-    attack = base; 
-    do {
-	attack = (attack << 7) & ~FILE_H;
-	attacks |= attack;
-    } while (attack & empty);
-
-    // south-east ray
-    attack = base; 
-    do {
-	attack = (attack >> 7) & ~FILE_A;
-	attacks |= attack;
-    } while (attack & empty);
-
-    // south-west ray
-    attack = base; 
-    do {
-	attack = (attack >> 9) & ~FILE_H;
-	attacks |= attack;
-    } while (attack & empty);
-
-    return attacks;
-}
-
-static u64 RookAttacksOnFly(Square square,u64 occupancy) {
-    u64 attacks = 0;
-    u64 base = 1ULL << square;
-    u64 rank_occ = RANKS[square / 8];
-    u64 empty = ~occupancy;
-    printf("\n");
-    PrintBitboard(empty);
-    printf("\n");
-
-    u64 attack;
-
-    // north ray
-    attack = base;
-    do {
-	attack <<= 8;
-	attacks |= attack;
-    } while (attack & empty);
-
-    // south ray
-    attack = base;
-    do {
-	attack >>= 8;
-	attacks |= attack;
-    } while (attack & empty);
-
-    // west ray
-    attack = base; 
-    do {
-	attack >>= 1;
-	attacks |= attack & rank_occ;
-    } while (attack & empty & rank_occ);
-
-    // east ray
-    attack = base;
-    do {
-	attack <<= 1;
-	attacks |= attack & rank_occ;
-    } while (attack & empty & rank_occ);
-    
-    return attacks;
-}
-
-int main(void ) {
+int main(void) {
     InitMagics();
     Board board = BoardNew();
-    board.occupancy[ALL] = 0xffff18999918ffff;
 
-    u64 bb = RookAttackFromSquare(F5, board.occupancy[ALL]);
-    u64 attacks = RookAttacksOnFly(F5,board.occupancy[ALL]);
+    MoveList mvlist = MoveListNew();
 
-    PrintBitboard(bb);
-    printf("---\n");
-    PrintBitboard(attacks);
+    GenPseudoLegalMoves(&board, &mvlist);
+
+    int count = 0;
+    for (int i = 0; i < (int)mvlist.len; i++) {
+	count++;
+	char buf[6];
+	MoveToUci(mvlist.data[i],buf);
+	printf("%s,\n",buf);
+    }
+
+    printf("count: %d\n\n\n\n",count);
+
+    {
+	Move move = MoveNew(E2, E4) | DOUBLE_PAWN_PUSH;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    }
+
+    {
+	Move move = MoveNew(A7, A5) | DOUBLE_PAWN_PUSH;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    }
+
+    {
+	Move move = MoveNew(E4, E5) | SINGLE_PAWN_PUSH;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    } 
+
+    {
+	Move move = MoveNew(D7, D5) | DOUBLE_PAWN_PUSH;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    }
+
+    {
+	Move move = MoveNew(E5, D6) | EP_CAPTURE;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    }
+    
+    {
+	Move move = MoveNew(C7, D6) | CAPTURE;
+	char buf[6];
+	MoveToUci(move, buf);
+	printf("* making move... %s\n",buf);
+	MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("--------------------\n");
+    }
 
     return 0;
 } 

@@ -1,4 +1,7 @@
 #include "board/board.h"
+#include "globals.h"
+#include "movegen/magics.h"
+#include "utils/bitboard.h"
 #include "utils/types.h"
 #include <stdio.h>
 
@@ -58,7 +61,41 @@ void BoardPrint(Board *self) {
     printf("   A   B   C   D   E   F   G   H\n\n");
 }
 
-bool SquareAttackedByColour(Board *self, Square sq, Colour colour) {
+bool SquareAttackedByColour(Board *board, Square sq, Colour colour) {
+    // shoot rays from square and look for collisions
+    u64 occ = board->occupancy[ALL];
+
+    // knight
+    if (KNIGHT_ATTACKS[sq] & board->pieces[colour][Knight])
+	return true;
+
+    // bishop / queen
+    u64 bb = BishopAttackFromSquare(sq, occ);
+    if ((bb & board->pieces[colour][Bishop]) || (bb & board->pieces[colour][Queen]))
+	return true;
+
+    // rook / queen
+    bb = RookAttackFromSquare(sq, occ);
+    if ((bb & board->pieces[colour][Rook]) || (bb & board->pieces[colour][Queen]))
+	return true;
+
+    // pawn
+    if (PAWN_ATTACKS[InverseColour(colour)][sq] & board->pieces[colour][Pawn])
+	return true;
+    
+    // king
+    if (KING_ATTACKS[sq] & board->pieces[colour][King])
+	return true;
+
+    return false;
+}
+
+bool InCheck(Board *board) {
+    Colour turn = board->turn;
+    Square king_sq = LsbIndex(board->pieces[turn][King]);
+
+    if (SquareAttackedByColour(board, king_sq, InverseColour(turn)))
+	return true;
 
     return false;
 }

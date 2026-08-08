@@ -25,4 +25,17 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist);
 void PseudoQuietRookGen(Board *board, MoveList *movelist);
 void PseudoCaptureRookGen(Board *board, MoveList *movelist);
 
+// Bishop gen
+void PseudoQuietBishopGen(Board *board, MoveList *movelist);
+void PseudoCaptureBishopGen(Board *board, MoveList *movelist);
+
+// Queen gen
+void PseudoQuietQueenGen(Board *board, MoveList *movelist);
+void PseudoCaptureQueenGen(Board *board, MoveList *movelist);
+
+// Generate all pseudolegals
+void GenPseudoLegalMoves(Board *board, MoveList *movelist);
+void GenPseudoLegalCaptures(Board *board, MoveList *movelist);
+void GenPseudoLegalQuiets(Board *board, MoveList *movelist);
+
 #endif

@@ -15,6 +15,9 @@
 
 // the main board structure
 typedef struct {
+    // array of all pieces. 0 = A1, 63 = H8
+    Piece mailbox[64];
+
     // 0 white, 1 black | 0 pawn, 1 knight, 2 bishop, 3 rook, 4 queen, 5 king
     u64 pieces[2][6];
 
@@ -32,9 +35,6 @@ typedef struct {
 
     // halfmove clock, useful for 50 move rule (100 halfmoves)
     u8 halfmove_clock;
-
-    // array of all pieces. 0 = A1, 63 = H8
-    Piece mailbox[64];
 } Board;
 
 // creates a new board in startpos
@@ -48,7 +48,9 @@ void BoardPrint(Board *self);
 //
 
 // Temp function before incremental attack maps are implemented
-bool SquareAttackedByColour(Board *self, Square sq, Colour colour);
+bool SquareAttackedByColour(Board *board, Square sq, Colour colour);
+
+bool InCheck(Board *board);
 
 // MUST CLEAR BEFORE SETTING SQURE if you would like to place a piece there, because it doesnt overwrite
 static inline void BoardSetSq(Board *self,Square sq,Piece piece) {

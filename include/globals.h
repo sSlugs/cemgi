@@ -43,6 +43,7 @@ extern const u64 FILES[8];
 extern const u64 RANKS[8];
 
 // ATTACK TABLES
+extern const u64 PAWN_ATTACKS[2][64];
 extern const u64 KNIGHT_ATTACKS[64];
 extern const u64 KING_ATTACKS[64];
 

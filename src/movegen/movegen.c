@@ -1,5 +1,6 @@
 #include "movegen/movegen.h"
 #include "board/board.h"
+#include "movegen/magics.h"
 #include "movegen/move.h"
 #include "globals.h"
 #include "utils/bitboard.h"
@@ -79,7 +80,7 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
 	PopLsb(&dest_bb);
     }
 
-    // Castle rights
+    // Castling 
 
     // since white = 0, black = 1, and castle rights in board are phyiscal bits in order WQC,WKC,BQC,BKC we can use this cool trick to shift to proper colour!
     int shift = 2*colour;
@@ -100,7 +101,7 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
     // if we have castle queenside rights
     if (board->castle_rights & (WQC << shift)) {
 	// check if squares are empty
-	int ksq1 = (1ULL >> (source + 1)), ksq2 = (1ULL >> (source+2)),ksq3 = (1ULL >> (source+3));
+	int ksq1 = (1ULL << (source-1)), ksq2 = (1ULL << (source-2)),ksq3 = (1ULL << (source-3));
 	if (!(board->occupancy[ALL] & ksq1) && !(board->occupancy[ALL] & ksq2) && !(board->occupancy[ALL] & ksq3)) {
 	    // last check to see if ksq1 and ksq2 are currently under attack
 	    if (!(SquareAttackedByColour(board, ksq1, InverseColour(colour))) && !(SquareAttackedByColour(board, ksq2, InverseColour(colour)))) {
@@ -129,7 +130,7 @@ void PseudoCaptureKingGen(Board *board, MoveList *movelist) {
 	PopLsb(&dest_bb);
     }
 
-    // we dont check for castle rights for king capture moves
+    // we dont check castling for king capture moves
 }
 
 void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
@@ -150,7 +151,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	while (single_push) {
 	    int dest = LsbIndex(single_push);
 
-	    MoveListPush(movelist, MoveNew(dest - 8, dest));
+	    MoveListPush(movelist, MoveNew(dest - 8, dest) | SINGLE_PAWN_PUSH);
 
 	    PopLsb(&single_push);
 	}
@@ -186,7 +187,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
 	while (single_push) {
 	    int dest = LsbIndex(single_push);
 
-	    MoveListPush(movelist, MoveNew(dest + 8, dest));
+	    MoveListPush(movelist, MoveNew(dest + 8, dest) | SINGLE_PAWN_PUSH);
 
 	    PopLsb(&single_push);
 	}
@@ -365,9 +366,173 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 // sliders
 
 void PseudoQuietRookGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 rooks = board->pieces[colour][Rook];
+    u64 occ = board->occupancy[ALL];
 
+    // iter through all rooks
+    while (rooks) {
+	Square source = LsbIndex(rooks);
+
+	// get all rook quiets
+	u64 attacks = RookAttackFromSquare(source, occ) & ~occ;
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest));
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&rooks);
+    }
 }
 
 void PseudoCaptureRookGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 rooks = board->pieces[colour][Rook];
 
+    // iter through all rooks
+    while (rooks) {
+	Square source = LsbIndex(rooks);
+
+	// get all rook captures
+	u64 attacks = RookAttackFromSquare(source, board->occupancy[ALL]) & board->occupancy[InverseColour(colour)];
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest) | CAPTURE);
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&rooks);
+    }
 }
+
+void PseudoQuietBishopGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 bishops = board->pieces[colour][Bishop];
+    u64 occ = board->occupancy[ALL];
+
+    // iter through all bishops
+    while (bishops) {
+	Square source = LsbIndex(bishops);
+
+	// get all bishop quiets
+	u64 attacks = BishopAttackFromSquare(source, occ) & ~occ;
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest));
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&bishops);
+    }
+}
+
+void PseudoCaptureBishopGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 bishops = board->pieces[colour][Bishop];
+
+    // iter through all bishops
+    while (bishops) {
+	Square source = LsbIndex(bishops);
+
+	// get all bishop captures
+	u64 attacks = BishopAttackFromSquare(source, board->occupancy[ALL]) & board->occupancy[InverseColour(colour)];
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest) | CAPTURE);
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&bishops);
+    }
+}
+
+void PseudoQuietQueenGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 queens = board->pieces[colour][Bishop];
+    u64 occ = board->occupancy[ALL];
+
+    // iter through all queens
+    while (queens) {
+	Square source = LsbIndex(queens);
+
+	// get all queen quiets
+	u64 attacks = (BishopAttackFromSquare(source, occ) | RookAttackFromSquare(source, occ)) & ~occ;
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest));
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&queens);
+    }
+}
+
+void PseudoCaptureQueenGen(Board *board, MoveList *movelist) {
+    Colour colour = board->turn;
+    u64 queens = board->pieces[colour][Bishop];
+    u64 occ = board->occupancy[ALL];
+
+    // iter through all queens
+    while (queens) {
+	Square source = LsbIndex(queens);
+
+	// get all queen captures
+	u64 attacks = (BishopAttackFromSquare(source, occ) | RookAttackFromSquare(source, occ)) & board->occupancy[InverseColour(colour)];
+
+	while (attacks) {
+	    Square dest = LsbIndex(attacks);
+
+	    // push move
+	    MoveListPush(movelist, MoveNew(source, dest) | CAPTURE);
+	    
+	    PopLsb(&attacks);
+	}
+
+	PopLsb(&queens);
+    }
+}
+
+void GenPseudoLegalMoves(Board *board, MoveList *movelist) {
+    GenPseudoLegalCaptures(board, movelist);
+    GenPseudoLegalQuiets(board, movelist);
+}
+
+void GenPseudoLegalCaptures(Board *board, MoveList *movelist) {
+    PseudoCapturePawnGen(board, movelist);
+    PseudoCaptureKnightGen(board, movelist);
+    PseudoCaptureBishopGen(board, movelist);
+    PseudoCaptureRookGen(board, movelist);
+    PseudoCaptureQueenGen(board, movelist);
+    PseudoCaptureKingGen(board, movelist);
+}
+
+void GenPseudoLegalQuiets(Board *board, MoveList *movelist) {
+    PseudoQuietPawnGen(board, movelist);
+    PseudoQuietKnightGen(board, movelist);
+    PseudoQuietBishopGen(board, movelist);
+    PseudoQuietRookGen(board, movelist);
+    PseudoQuietQueenGen(board, movelist);
+    PseudoQuietKingGen(board, movelist);
+}
+

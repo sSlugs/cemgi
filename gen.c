@@ -8,9 +8,33 @@
 //
 
 int main(void) {
-    BishopMasksAndBits();
+    PawnAttacks();
 
     return 0;
+}
+
+void PawnAttacks(void) {
+    for (int turn = 0; turn < 2; turn++) {
+	printf("{\n");
+	for (int sq = 0; sq < 64; sq++) {
+	    if (sq % 4 == 0 && sq != 0) {
+		printf("\n");
+	    }
+	    u64 attacks = 0;
+	    u64 base = 1ULL << sq;
+
+	    // if white
+	    if (!turn) {
+		attacks |= (base << 7) & ~FILE_H;
+		attacks |= (base << 9) & ~FILE_A;
+	    } else {
+		attacks |= (base >> 7) & ~FILE_A;
+		attacks |= (base >> 9) & ~FILE_H;
+	    }
+	    printf("0x%" PRIx64 "ULL, ",attacks);
+	}
+	printf("},\n");
+    }
 }
 
 void BishopMasksAndBits(void) {
