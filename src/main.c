@@ -36,54 +36,19 @@ int main(void) {
     }
 
     {
-	Move move = MoveNew(A7, A5) | DOUBLE_PAWN_PUSH;
+	Move move = MoveNew(E7, E5) | DOUBLE_PAWN_PUSH;
 	char buf[6];
 	MoveToUci(move, buf);
 	printf("* making move... %s\n",buf);
-	MakeMove(&board, move);
+	State state = MakeMove(&board, move);
+	BoardPrint(&board);
+	printf("* unmaking move... %s\n",buf);
+	UndoMove(&board, move, state);
 	BoardPrint(&board);
 	printf("--------------------\n");
     }
 
-    {
-	Move move = MoveNew(E4, E5) | SINGLE_PAWN_PUSH;
-	char buf[6];
-	MoveToUci(move, buf);
-	printf("* making move... %s\n",buf);
-	MakeMove(&board, move);
-	BoardPrint(&board);
-	printf("--------------------\n");
-    } 
 
-    {
-	Move move = MoveNew(D7, D5) | DOUBLE_PAWN_PUSH;
-	char buf[6];
-	MoveToUci(move, buf);
-	printf("* making move... %s\n",buf);
-	MakeMove(&board, move);
-	BoardPrint(&board);
-	printf("--------------------\n");
-    }
-
-    {
-	Move move = MoveNew(E5, D6) | EP_CAPTURE;
-	char buf[6];
-	MoveToUci(move, buf);
-	printf("* making move... %s\n",buf);
-	MakeMove(&board, move);
-	BoardPrint(&board);
-	printf("--------------------\n");
-    }
-    
-    {
-	Move move = MoveNew(C7, D6) | CAPTURE;
-	char buf[6];
-	MoveToUci(move, buf);
-	printf("* making move... %s\n",buf);
-	MakeMove(&board, move);
-	BoardPrint(&board);
-	printf("--------------------\n");
-    }
 
     return 0;
 } 

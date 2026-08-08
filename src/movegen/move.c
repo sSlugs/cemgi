@@ -21,7 +21,7 @@ State MakeMove(Board *board, Move move) {
     // remove piece on source square
     BoardClearSq(board, source, source_piece);
 
-    // setup undo
+    // setup state
     State state = NULL_PIECE << 24;
     StateWriteCastleRights(&state, board->castle_rights);
     StateWriteHalfMoveClock(&state, board->halfmove_clock);
@@ -182,6 +182,81 @@ State MakeMove(Board *board, Move move) {
 }
 
 void UndoMove(Board *board, Move move, State state) {
+    // undo move by reversing order, reading state, and moving pieces back
+    board->turn = InverseColour(board->turn);
+    // useful data
+    Colour turn = board->turn;
+    Square source = move & SOURCE;
+    Square dest = (move & DEST) >> 6;
+    Piece dest_piece = board->mailbox[dest];
+    u16 flag = move & FLAGS;
+
+    // write the state to our board
+    board->castle_rights = StateReadCastleRights(state);
+    board->enpassant_tsq = StateReadEpTargetSquare(state);
+    board->halfmove_clock = StateReadHalfMoveClock(state);
+
+    BoardClearSq(board, dest, dest_piece);
+
+    // move our piece back and clear where we landed
+    switch (flag) {
+	case QUIET_MOVE:
+	case SINGLE_PAWN_PUSH:
+	case DOUBLE_PAWN_PUSH:
+	    BoardSetSq(board, source, dest_piece);
+	    break;
+
+	case KING_CASTLE:
+	    {
+		Piece rook = ROOK | (BLACK_PIECE*turn);
+		BoardClearSq(board, dest - 1, rook);
+		BoardSetSq(board, source, dest_piece);
+		BoardSetSq(board, 7 + 56*turn, rook);
+		break;
+	    }
+
+	case QUEEN_CASTLE:
+	    {
+		Piece rook = ROOK | (BLACK_PIECE*turn);
+		BoardClearSq(board, dest + 1, rook);
+		BoardSetSq(board, source, dest_piece);
+		BoardSetSq(board, 56*turn, rook);
+		break;
+	    }
+
+	case CAPTURE:
+	    BoardSetSq(board, source, dest_piece);
+	    BoardSetSq(board, dest, StateReadCapturedPiece(state));
+	    break;
+
+	case EP_CAPTURE:
+	    BoardSetSq(board, source, dest_piece);
+	    BoardSetSq(board, dest - (8 - 16*turn), StateReadCapturedPiece(state));
+	    break;
+	
+	case KNIGHT_PROMO_CAPTURE:
+	    BoardSetSq(board, dest, StateReadCapturedPiece(state));
+	case KNIGHT_PROMO:
+	    BoardSetSq(board, source, PAWN | (BLACK_PIECE*turn));
+	    break;
+
+	case BISHOP_PROMO_CAPTURE:
+	    BoardSetSq(board, dest, StateReadCapturedPiece(state));
+	case BISHOP_PROMO:
+	    BoardSetSq(board, source, PAWN | (BLACK_PIECE*turn));
+	    break;
+
+	case ROOK_PROMO_CAPTURE:
+	    BoardSetSq(board, dest, StateReadCapturedPiece(state));
+	case ROOK_PROMO:
+	    BoardSetSq(board, source, PAWN | (BLACK_PIECE*turn));
+	    break;
+
+	case QUEEN_PROMO_CAPTURE:
+	    BoardSetSq(board, dest, StateReadCapturedPiece(state));
+	case QUEEN_PROMO:
+	    BoardSetSq(board, source, PAWN | (BLACK_PIECE*turn));
+    }
 
 }
 
