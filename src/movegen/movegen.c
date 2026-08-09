@@ -88,12 +88,14 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
     // if we have castle kingside rights
     if (board->castle_rights & (WKC << shift)) {
 	// check if squares are empty. because we know if we have castle rights kin will be in e4 or e8, shifting once and twice will give us the square king must pass through regardless of colour
-	int ksq1 = (1ULL << (source + 1)), ksq2 = (1ULL << (source+2));
+	u64 ksq1 = (1ULL << (source+1)), ksq2 = (1ULL << (source+2));
+	int ksq1i = LsbIndex(ksq1), ksq2i = LsbIndex(ksq2);
 	if (!(board->occupancy[ALL] & ksq1) && !(board->occupancy[ALL] & ksq2)) {
 	    // last check to see if ksq1 and ksq2 are currently under attack
-	    if (!(SquareAttackedByColour(board, ksq1, InverseColour(colour))) && !(SquareAttackedByColour(board, ksq2, InverseColour(colour)))) {
+	    if (!(SquareAttackedByColour(board, ksq1i, InverseColour(colour))) && !(SquareAttackedByColour(board, ksq2i, InverseColour(colour)))) {
 		// if all checks pass we can push kingside castle
-		MoveListPush(movelist, MoveNew(source, ksq2) | KING_CASTLE);
+		if (!InCheck(board))
+		    MoveListPush(movelist, MoveNew(source, ksq2i) | KING_CASTLE);
 	    }
 	}
     }
@@ -101,12 +103,14 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
     // if we have castle queenside rights
     if (board->castle_rights & (WQC << shift)) {
 	// check if squares are empty
-	int ksq1 = (1ULL << (source-1)), ksq2 = (1ULL << (source-2)),ksq3 = (1ULL << (source-3));
+	u64 ksq1 = (1ULL << (source-1)), ksq2 = (1ULL << (source-2)),ksq3 = (1ULL << (source-3));
+	int ksq1i = LsbIndex(ksq1), ksq2i = LsbIndex(ksq2);
 	if (!(board->occupancy[ALL] & ksq1) && !(board->occupancy[ALL] & ksq2) && !(board->occupancy[ALL] & ksq3)) {
 	    // last check to see if ksq1 and ksq2 are currently under attack
-	    if (!(SquareAttackedByColour(board, ksq1, InverseColour(colour))) && !(SquareAttackedByColour(board, ksq2, InverseColour(colour)))) {
+	    if (!(SquareAttackedByColour(board, ksq1i, InverseColour(colour))) && !(SquareAttackedByColour(board, ksq2i, InverseColour(colour)))) {
 		// if all checks pass we can push kingside castle
-		MoveListPush(movelist, MoveNew(source, ksq2) | QUEEN_CASTLE);
+		if (!InCheck(board))
+		    MoveListPush(movelist, MoveNew(source, ksq2i) | QUEEN_CASTLE);
 	    }
 	}
     }
@@ -229,14 +233,14 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    u64 enpassant_tsq_bb = (1ULL << board->enpassant_tsq);
 
 	    int left_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
-	    int right_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+	    int right_enpassant = LsbIndex(right_captures & enpassant_tsq_bb);
 
 	    if (left_enpassant != NullSquare) {
 		MoveListPush(movelist, MoveNew(left_enpassant - 7, left_enpassant) | EP_CAPTURE);
 	    }
 
 	    if (right_enpassant != NullSquare) {
-		MoveListPush(movelist, MoveNew(left_enpassant - 9, left_enpassant) | EP_CAPTURE);
+		MoveListPush(movelist, MoveNew(right_enpassant - 9, right_enpassant) | EP_CAPTURE);
 	    }
 	}
 
@@ -299,14 +303,14 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 	    u64 enpassant_tsq_bb = (1ULL << board->enpassant_tsq);
 
 	    int left_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
-	    int right_enpassant = LsbIndex(left_captures & enpassant_tsq_bb);
+	    int right_enpassant = LsbIndex(right_captures & enpassant_tsq_bb);
 
 	    if (left_enpassant != NullSquare) {
 		MoveListPush(movelist, MoveNew(left_enpassant + 9, left_enpassant) | EP_CAPTURE);
 	    }
 
 	    if (right_enpassant != NullSquare) {
-		MoveListPush(movelist, MoveNew(left_enpassant + 7, left_enpassant) | EP_CAPTURE);
+		MoveListPush(movelist, MoveNew(right_enpassant + 7, right_enpassant) | EP_CAPTURE);
 	    }
 	}
 
@@ -465,7 +469,7 @@ void PseudoCaptureBishopGen(Board *board, MoveList *movelist) {
 
 void PseudoQuietQueenGen(Board *board, MoveList *movelist) {
     Colour colour = board->turn;
-    u64 queens = board->pieces[colour][Bishop];
+    u64 queens = board->pieces[colour][Queen];
     u64 occ = board->occupancy[ALL];
 
     // iter through all queens
@@ -490,7 +494,7 @@ void PseudoQuietQueenGen(Board *board, MoveList *movelist) {
 
 void PseudoCaptureQueenGen(Board *board, MoveList *movelist) {
     Colour colour = board->turn;
-    u64 queens = board->pieces[colour][Bishop];
+    u64 queens = board->pieces[colour][Queen];
     u64 occ = board->occupancy[ALL];
 
     // iter through all queens

@@ -10,7 +10,7 @@
 //
 
 Board BoardNew(void) {
-    Board newboard = {
+Board newboard = {
 	.pieces = {
 	    {0xff00,0x42,0x24,0x81,0x8,0x10},
 	    {0xff000000000000,0x4200000000000000,0x2400000000000000,0x8100000000000000,0x800000000000000,0x1000000000000000}
@@ -43,6 +43,14 @@ Board BoardNew(void) {
     };
 
     return newboard;
+}
+
+Board BoardFEN(char *fen) {
+    Board board;
+
+    
+    
+    return board;
 }
 
 void BoardPrint(Board *self) {
@@ -95,6 +103,16 @@ bool InCheck(Board *board) {
     Square king_sq = LsbIndex(board->pieces[turn][King]);
 
     if (SquareAttackedByColour(board, king_sq, InverseColour(turn)))
+	return true;
+
+    return false;
+}
+
+bool EnemyInCheck(Board *board) {
+    Colour turn = board->turn;
+    Square king_sq = LsbIndex(board->pieces[InverseColour(turn)][King]);
+
+    if (SquareAttackedByColour(board, king_sq, turn))
 	return true;
 
     return false;

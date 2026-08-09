@@ -39,6 +39,7 @@ typedef struct {
 
 // creates a new board in startpos
 Board BoardNew(void);
+Board BoardFEN(char *fen);
 
 // prints board onto stdout
 void BoardPrint(Board *self);
@@ -51,12 +52,13 @@ void BoardPrint(Board *self);
 bool SquareAttackedByColour(Board *board, Square sq, Colour colour);
 
 bool InCheck(Board *board);
+bool EnemyInCheck(Board *board);
 
 // MUST CLEAR BEFORE SETTING SQURE if you would like to place a piece there, because it doesnt overwrite
 static inline void BoardSetSq(Board *self,Square sq,Piece piece) {
     Colour colour = PieceGetColourEnum(piece);
     self->mailbox[sq] = piece;
-    self->pieces[colour][PieceGetTypeEnum(piece)] &= ~(1ULL << sq);
+    self->pieces[colour][PieceGetTypeEnum(piece)] |= (1ULL << sq);
     self->occupancy[colour] |= (1ULL << sq);
     self->occupancy[2] |= (1ULL << sq);
 }
