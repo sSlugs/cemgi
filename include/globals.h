@@ -3,6 +3,7 @@
  
 #include <stdint.h>
 #include <inttypes.h>
+#include <inttypes.h>
 
 // for occupancy, helps readability
 #define ALL 2
@@ -14,6 +15,10 @@ typedef uint16_t u16;
 typedef uint8_t u8;
 
 // functions
+
+// turns string to a int
+int StringToNumber(char *str);
+int ToNum(const char c);
 
 // generates a new random u64 (Strong, uses linux API)
 u64 RandomU64(void);

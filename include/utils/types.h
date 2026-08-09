@@ -93,4 +93,6 @@ typedef enum {
     NullSquare,
 } Square;
 
+Square StrToSquare(char *str);
+
 #endif
