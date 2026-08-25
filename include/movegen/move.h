@@ -32,7 +32,7 @@
 // macros!!!!!
 #define SOURCE 0x3f
 #define DEST 0xfc0
-#define FLAGS 0xf000
+#define MOVE_FLAGS 0xf000
 
 #define QUIET_MOVE 0x0
 #define DOUBLE_PAWN_PUSH 0x1000

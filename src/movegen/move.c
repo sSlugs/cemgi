@@ -16,7 +16,7 @@ State MakeMove(Board *board, Move move) {
     Square source = move & SOURCE;
     Square dest = (move & DEST) >> 6;
     Piece source_piece = board->mailbox[source];
-    u16 flag = move & FLAGS;
+    u16 flag = move & MOVE_FLAGS;
 
     // remove piece on source square
     BoardClearSq(board, source, source_piece);
@@ -61,7 +61,7 @@ State MakeMove(Board *board, Move move) {
 	    {
 		Piece rook = ROOK | (BLACK_PIECE * turn);
 		BoardSetSq(board, dest, source_piece);
-		BoardClearSq(board, dest - 1, rook);
+		BoardClearSq(board, dest - 2, rook);
 		BoardSetSq(board, dest + 1, rook);
 		break;
 	    }
@@ -189,7 +189,7 @@ void UndoMove(Board *board, Move move, State state) {
     Square source = move & SOURCE;
     Square dest = (move & DEST) >> 6;
     Piece dest_piece = board->mailbox[dest];
-    u16 flag = move & FLAGS;
+    u16 flag = move & MOVE_FLAGS;
 
     // write the state to our board
     board->castle_rights = StateReadCastleRights(state);
@@ -272,7 +272,7 @@ void MoveToUci(Move move, char str[6]) {
     str[3] = ROWS_TO_NUMS[dest / 8];
 
     // avoids checking promotions rn 
-    u16 flag = move & FLAGS;
+    u16 flag = move & MOVE_FLAGS;
     int index = 4;
 
     switch (flag) {

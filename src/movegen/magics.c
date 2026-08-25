@@ -3,8 +3,6 @@
 #include "utils/types.h"
 #include "utils/bitboard.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 //
 // Precomputed tables

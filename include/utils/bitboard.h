@@ -2,7 +2,9 @@
 #define BITBOARD_H
 #include "globals.h"
 #include <stdint.h>
+#include <stdio.h>
 #include "utils/types.h"
+#include <immintrin.h>
 
 // sets bit at index
 static inline void SetBit(u64 *bb, int index) {
@@ -21,7 +23,7 @@ static inline void ClearBit(u64 *bb, int index) {
 
 // pops lowest active bit
 static inline void PopLsb(u64 *bb) {
-    *bb &= *bb - 1ULL;
+    *bb = _blsr_u64(*bb);
 }
 
 // returns number of active bits
@@ -38,6 +40,8 @@ static inline int PopCountU8(u8 u8) {
 static inline void PopLsbU8(u8 *u8) {
     *u8 &= *u8 - 1;
 }
+
+// non intrinsics
 
 // returns the number of 0s until before it finds first active bit. (Ex. 1110_1000 = 3) fast bc it uses cpu instruction
 static inline Square LsbIndex(u64 bb) {

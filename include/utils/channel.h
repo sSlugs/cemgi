@@ -31,7 +31,7 @@ bool TrySendChannel(Command cmd, Channel *self);
 // returns nullcommand if fail
 Command TryRecvChannel(Channel *self);
 
-// returns whether channel was cleared
+// returns whether channel was cleared succesfully
 bool TryClearChannel(Channel *self);
 
 void FreeChannel(Channel *self) {

@@ -6,7 +6,7 @@
 #include <time.h>
 
 u64 Perft(Board *board, int depth) {
-    // if leaf node return 1 to the count
+    // if leaf node return 1 
     if (!depth) {
 	return 1;
     }

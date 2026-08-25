@@ -1,10 +1,10 @@
 CC = gcc
 
 # development (no Wall or Wextra bc the "unused include" is far too annoying)
-CFLAGS = -Iinclude -g -O0
+CFLAGS = -Iinclude -g -O0 -march=native
 
 # release
-#CFLAGS = -Wall -Wextra -Iinclude -g -O3
+#CFLAGS = -Wall -Wextra -Iinclude -g -O3 -march=native
 
 SRC_DIR = src
 BUILD_DIR = build
