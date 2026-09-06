@@ -1,3 +1,5 @@
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdio.h>
 #include "bench.h"
 #include "board/board.h"
@@ -5,6 +7,7 @@
 #include "movegen/move.h"
 #include "movegen/movegen.h"
 #include "perft.h"
+#include "tests.h"
 #include "utils/bitboard.h"
 #include "utils/types.h"
 #include "movegen/magics.h"
@@ -15,7 +18,7 @@ int main(void) {
     Board board = BoardFEN(fen);
     MoveList movelist = MoveListNew();
 
-    PerftDivide(&board, 4);
+    // PerftDivide(&board, 4);
 
     /*
     GenPseudoLegalQuiets(&board, &movelist);
@@ -29,6 +32,24 @@ int main(void) {
     }
     */
 
+    // bench_magics();
 
+    int fd = open("tests/movegen.tests", O_RDONLY);
+
+    if (fd == -1)
+	return 0;
+
+    while (1) {
+	MovegenTestCase testcase = get_next_movegen_testcase(fd);
+
+	if (!testcase.is_null) {
+		printf("fen: '%s', depth: '%d', expected leaf nodes: '%llu'\n",testcase.fen,testcase.depth,testcase.expected_leaf_nodes);
+	}
+	
+	if (testcase.null_type == EndofFile) {
+	    break;
+	}
+    }
+ 
     return 0;
 } 
