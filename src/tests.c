@@ -1,6 +1,9 @@
 #include "tests.h"
+#include "board/board.h"
+#include "perft.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
 
 static int char_to_digit(char ch) {
@@ -163,7 +166,46 @@ MovegenTestCase get_next_movegen_testcase(int fd) {
 }
 
 // tests our movegen to see if theres any errors using tests/movegen.tests
-
 void test_movegen() {
+    MovegenTestCase testcase;
 
+    int fd = open("tests/movegen.tests", O_RDONLY);
+
+    if (fd == -1){
+	printf("test failed to start. couldnt open tests/movegen.tests\n");
+	return;
+    }
+
+    int i = 0;
+    while (1) {
+	testcase = get_next_movegen_testcase(fd);
+	if (testcase.is_null) {
+	   if (testcase.null_type == EndofFile)  {
+	       break;
+	   } else if (testcase.null_type == IgnoreLine) {
+		continue;
+	   } else {
+	       printf("tests/movegen.tests exited unsafely. do not trust tests\n");
+	       return;
+	   }
+	}
+
+	Board board = BoardFEN(testcase.fen);
+
+	u64 nodes = Perft(&board, testcase.depth);
+
+	if (nodes == testcase.expected_leaf_nodes) {
+	    printf("test %d passed...   ",i);
+	    printf("nodes: %llu == expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
+	} else {
+	    printf("test %d failed...   ",i);
+	    printf("nodes: %llu == expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
+	    return;
+	}
+	i++;
+    }
+
+    printf("reached end of tests file.\n");
+
+    return;
 }

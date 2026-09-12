@@ -49,3 +49,5 @@ void bench_magics(void) {
     // Prevent the compiler from considering benchmark_sink unused.
     printf("Benchmark sink: 0x%llx\n",(unsigned long long)benchmark_sink);
 }
+
+// bench move generation

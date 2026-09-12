@@ -33,23 +33,7 @@ int main(void) {
     */
 
     // bench_magics();
+    test_movegen();
 
-    int fd = open("tests/movegen.tests", O_RDONLY);
-
-    if (fd == -1)
-	return 0;
-
-    while (1) {
-	MovegenTestCase testcase = get_next_movegen_testcase(fd);
-
-	if (!testcase.is_null) {
-		printf("fen: '%s', depth: '%d', expected leaf nodes: '%llu'\n",testcase.fen,testcase.depth,testcase.expected_leaf_nodes);
-	}
-	
-	if (testcase.null_type == EndofFile) {
-	    break;
-	}
-    }
- 
     return 0;
 } 
