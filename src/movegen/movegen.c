@@ -7,7 +7,7 @@
 #include "utils/types.h"
 #include <stdio.h>
 
-void PseudoQuietKnightGen(Board *board, MoveList *movelist) {
+void PseudoQuietKnightGen(const Board *board, MoveList *movelist) {
     u64 knights = board->pieces[board->turn][Knight];
 
     // iterate through all knights of current turn's colour
@@ -34,7 +34,7 @@ void PseudoQuietKnightGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCaptureKnightGen(Board *board, MoveList *movelist) {
+void PseudoCaptureKnightGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 knights = board->pieces[colour][Knight];
 
@@ -61,7 +61,7 @@ void PseudoCaptureKnightGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoQuietKingGen(Board *board, MoveList *movelist) {
+void PseudoQuietKingGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
 
     int source = LsbIndex(board->pieces[colour][King]);
@@ -116,7 +116,7 @@ void PseudoQuietKingGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCaptureKingGen(Board *board, MoveList *movelist) {
+void PseudoCaptureKingGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
 
     int source = LsbIndex(board->pieces[colour][King]);
@@ -137,7 +137,7 @@ void PseudoCaptureKingGen(Board *board, MoveList *movelist) {
     // we dont check castling for king capture moves
 }
 
-void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
+void PseudoQuietPawnGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
 
     u64 pawns = board->pieces[colour][Pawn];
@@ -217,7 +217,7 @@ void PseudoQuietPawnGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
+void PseudoCapturePawnGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
 
     u64 pawns = board->pieces[colour][Pawn];
@@ -369,7 +369,7 @@ void PseudoCapturePawnGen(Board *board, MoveList *movelist) {
 
 // sliders
 
-void PseudoQuietRookGen(Board *board, MoveList *movelist) {
+void PseudoQuietRookGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 rooks = board->pieces[colour][Rook];
     u64 occ = board->occupancy[ALL];
@@ -394,7 +394,7 @@ void PseudoQuietRookGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCaptureRookGen(Board *board, MoveList *movelist) {
+void PseudoCaptureRookGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 rooks = board->pieces[colour][Rook];
 
@@ -418,7 +418,7 @@ void PseudoCaptureRookGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoQuietBishopGen(Board *board, MoveList *movelist) {
+void PseudoQuietBishopGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 bishops = board->pieces[colour][Bishop];
     u64 occ = board->occupancy[ALL];
@@ -443,7 +443,7 @@ void PseudoQuietBishopGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCaptureBishopGen(Board *board, MoveList *movelist) {
+void PseudoCaptureBishopGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 bishops = board->pieces[colour][Bishop];
 
@@ -467,7 +467,7 @@ void PseudoCaptureBishopGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoQuietQueenGen(Board *board, MoveList *movelist) {
+void PseudoQuietQueenGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 queens = board->pieces[colour][Queen];
     u64 occ = board->occupancy[ALL];
@@ -492,7 +492,7 @@ void PseudoQuietQueenGen(Board *board, MoveList *movelist) {
     }
 }
 
-void PseudoCaptureQueenGen(Board *board, MoveList *movelist) {
+void PseudoCaptureQueenGen(const Board *board, MoveList *movelist) {
     Colour colour = board->turn;
     u64 queens = board->pieces[colour][Queen];
     u64 occ = board->occupancy[ALL];
@@ -517,12 +517,12 @@ void PseudoCaptureQueenGen(Board *board, MoveList *movelist) {
     }
 }
 
-void GenPseudoLegalMoves(Board *board, MoveList *movelist) {
+void GenPseudoLegalMoves(const Board *board, MoveList *movelist) {
     GenPseudoLegalCaptures(board, movelist);
     GenPseudoLegalQuiets(board, movelist);
 }
 
-void GenPseudoLegalCaptures(Board *board, MoveList *movelist) {
+void GenPseudoLegalCaptures(const Board *board, MoveList *movelist) {
     PseudoCapturePawnGen(board, movelist);
     PseudoCaptureKnightGen(board, movelist);
     PseudoCaptureBishopGen(board, movelist);
@@ -531,7 +531,7 @@ void GenPseudoLegalCaptures(Board *board, MoveList *movelist) {
     PseudoCaptureKingGen(board, movelist);
 }
 
-void GenPseudoLegalQuiets(Board *board, MoveList *movelist) {
+void GenPseudoLegalQuiets(const Board *board, MoveList *movelist) {
     PseudoQuietPawnGen(board, movelist);
     PseudoQuietKnightGen(board, movelist);
     PseudoQuietBishopGen(board, movelist);

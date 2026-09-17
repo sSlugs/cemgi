@@ -39,7 +39,7 @@ typedef struct {
 
 // creates a new board in startpos
 Board BoardNew(void);
-Board BoardFEN(char *fen);
+Board BoardFEN(const char *fen);
 
 // prints board onto stdout
 void BoardPrint(Board *self);

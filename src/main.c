@@ -6,7 +6,6 @@
 #include "globals.h"
 #include "movegen/move.h"
 #include "movegen/movegen.h"
-#include "perft.h"
 #include "tests.h"
 #include "utils/bitboard.h"
 #include "utils/types.h"
@@ -33,7 +32,7 @@ int main(void) {
     */
 
     // bench_magics();
-    test_movegen();
+    bench_movegen();
 
     return 0;
 } 

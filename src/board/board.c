@@ -80,8 +80,10 @@ static u8 GetCastleRight(const char c) {
     return 0;
 }
 
-Board BoardFEN(char *fen) {
+Board BoardFEN(const char *fen_s) {
     Board board = {0};
+    char fen[1024];
+    memcpy(fen, fen_s,strlen(fen_s));
 
     // iter through all fields
     int field_num = 0;

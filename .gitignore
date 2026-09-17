@@ -2,3 +2,4 @@ cemgi
 gen
 compile_commands.json
 build/
+src/log.txt

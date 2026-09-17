@@ -1,4 +1,4 @@
-#include "perft.h"
+#include "movegen/perft.h"
 #include "board/board.h"
 #include "movegen/move.h"
 #include "movegen/movegen.h"

@@ -1,6 +1,6 @@
 #include "tests.h"
 #include "board/board.h"
-#include "perft.h"
+#include "movegen/perft.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -199,7 +199,7 @@ void test_movegen() {
 	    printf("nodes: %llu == expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
 	} else {
 	    printf("test %d failed...   ",i);
-	    printf("nodes: %llu == expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
+	    printf("nodes: %llu != expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
 	    return;
 	}
 	i++;
