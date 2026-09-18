@@ -2,6 +2,7 @@
 #include "board/board.h"
 #include "utils/bitboard.h"
 #include "utils/types.h"
+#include <stdio.h>
 
 static char COLS_TO_LETTERS[8] = {'a','b','c','d','e','f','g','h'};
 static char ROWS_TO_NUMS[8] = {'1','2','3','4','5','6','7','8'};

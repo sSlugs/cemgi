@@ -6,33 +6,30 @@
 #include "globals.h"
 #include "movegen/move.h"
 #include "movegen/movegen.h"
+#include "search/negamax.h"
 #include "tests.h"
 #include "utils/bitboard.h"
 #include "utils/types.h"
 #include "movegen/magics.h"
 
+bool debug = true;
+
 int main(void) {
     InitMagics();
-    char fen[] = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
-    Board board = BoardFEN(fen);
-    MoveList movelist = MoveListNew();
+    if (debug) {
+	Board board = BoardFEN("4k3/8/2q5/8/4N3/4P3/5P2/4K3 b - - 0 1");
+	TempSearchContext context = TempSearchContextNew();
 
-    // PerftDivide(&board, 4);
+	GenPseudoLegalMoves(&board, &context.searchlist[0]);
 
-    /*
-    GenPseudoLegalQuiets(&board, &movelist);
+	Move move = RootNegaMax(&board, &context, 2);
+	char best_move[6];
+	MoveToUci(move, best_move);
 
-    for (size_t i = 0; i < movelist.len; i++) {
-	Move move = movelist.data[i];
-	char buf[6];
-	MoveToUci(move, buf);
+	printf("best move: %s\n",best_move);
 
-	printf("move: %s\n",buf);
+	return 0;
     }
-    */
-
-    // bench_magics();
-    bench_movegen();
 
     return 0;
 } 

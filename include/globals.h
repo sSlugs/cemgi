@@ -5,6 +5,10 @@
 #include <inttypes.h>
 #include <inttypes.h>
 
+// movegen and negamax stuff
+#define MAX_PLY 128
+#define INF 100000000
+
 // for occupancy, helps readability
 #define ALL 2
 

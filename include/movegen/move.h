@@ -55,6 +55,8 @@
 //
 // Move stuff
 
+#define NULL_MOVE 0x0
+
 // small amount of information about a board state
 typedef uint32_t State;
 

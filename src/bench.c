@@ -294,7 +294,7 @@ BenchData bench_movegen(void) {
     double ilegal_moves = 0;
     total_ns = 0;
     ns_per_call = 0;
-    u64 temp_iterations = 1000000;
+    u64 temp_iterations = 10000000;
     for (u64 i = 0; i < temp_iterations; i++) {
 	Board *board = &boards[(i % 10)];
         GenPseudoLegalMoves(board,&movelist_sink);

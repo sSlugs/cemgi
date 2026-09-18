@@ -1,4 +1,5 @@
 #include "globals.h"
+#include "movegen/move.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -6,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/random.h>
+
+// Persistent global data
 
 // functions
 u64 RandomU64(void) {
