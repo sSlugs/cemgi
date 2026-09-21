@@ -200,6 +200,7 @@ void test_movegen() {
 	} else {
 	    printf("test %d failed...   ",i);
 	    printf("nodes: %llu != expected nodes: %llu\n",nodes,testcase.expected_leaf_nodes);
+	    printf("TESTS FAILED...\n");
 	    return;
 	}
 	i++;

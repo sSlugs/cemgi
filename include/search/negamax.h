@@ -3,10 +3,12 @@
 #include "board/board.h"
 #include "globals.h"
 #include "movegen/move.h"
+#include "utils/channel.h"
 
 // TempSearchContext, data does not persist between searches
 typedef struct {
     MoveList searchlist[MAX_PLY];
+    u64 leaf_nodes_searched;
 } TempSearchContext;
 
 static TempSearchContext TempSearchContextNew() {
@@ -16,9 +18,9 @@ static TempSearchContext TempSearchContextNew() {
 }
 
 // returns the evaluation of the board
-int NegaMax(Board *board,TempSearchContext *temp_context,int depth);
+int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
 
-Move RootNegaMax(Board *board,TempSearchContext *temp_context,int depth);
+Move RootNegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
 
 
 #endif

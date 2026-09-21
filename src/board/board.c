@@ -85,9 +85,11 @@ Board BoardFEN(const char *fen_s) {
     char fen[1024];
     memcpy(fen, fen_s,strlen(fen_s));
 
+    char *saveptr;
+
     // iter through all fields
     int field_num = 0;
-    char *field = strtok(fen, " ");
+    char *field = strtok_r(fen, " ",&saveptr);
     int char_pointer = 0;
     while (field != NULL) {
 	int pointer = 0;
@@ -160,7 +162,7 @@ Board BoardFEN(const char *fen_s) {
 		board.halfmove_clock = StringToNumber(field);
 	}
 	
-	field = strtok(NULL, " ");
+	field = strtok_r(NULL, " ",&saveptr);
 	field_num++;
     }
     
@@ -207,6 +209,40 @@ bool SquareAttackedByColour(Board *board, Square sq, Colour colour) {
     
     // king
     if (KING_ATTACKS[sq] & board->pieces[colour][King])
+	return true;
+
+    return false;
+}
+
+bool SquareAttackedByPiece(Board *board, Square sq, Piece piece) {
+    // shoot rays from square and look for collisions
+    u64 occ = board->occupancy[ALL];
+    u64 attack_bb;
+
+    Colour colour = PieceGetColourEnum(piece);
+    PieceType piecetype = PieceGetTypeEnum(piece);
+
+    switch (piecetype) {
+	case Pawn:
+	    attack_bb = PAWN_ATTACKS[InverseColour(colour)][sq];
+
+	case Knight:
+	    attack_bb = KNIGHT_ATTACKS[sq];
+
+	case Bishop:
+	    attack_bb = BishopAttackFromSquare(sq, occ);
+
+	case Rook:
+	    attack_bb = RookAttackFromSquare(sq, occ);
+	
+	case Queen:
+	    attack_bb = RookAttackFromSquare(sq, occ) | BishopAttackFromSquare(sq, occ);
+	    
+	case King:
+	    attack_bb = KING_ATTACKS[sq];
+    }
+
+    if (attack_bb & board->pieces[colour][piecetype])
 	return true;
 
     return false;

@@ -6,8 +6,10 @@
 #include <inttypes.h>
 
 // movegen and negamax stuff
-#define MAX_PLY 128
-#define INF 100000000
+#define MAX_PLY 256
+#define INF 1000000000
+#define MATE 100000000
+#define STOP 57095709
 
 // for occupancy, helps readability
 #define ALL 2

@@ -23,7 +23,7 @@ static int GetCol(const char c) {
     return 0;
 }
 
-static int GetRowStart(const char c) {
+static int GetRow(const char c) {
     switch (c) {
 	case '1':
 	    return 0;
@@ -46,7 +46,7 @@ static int GetRowStart(const char c) {
 }
 
 Square StrToSquare(char *str) {
-    return GetRowStart(str[0]) + GetCol(str[1]);
+    return GetCol(str[0]) + GetRow(str[1]);
 }
 
 char PieceToChar(Piece piece) {

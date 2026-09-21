@@ -86,7 +86,7 @@ bool TrySendChannel(Command cmd, Channel *self) {
 }
 
 Command TryRecvChannel(Channel *self) {
-    Command retcmd = NullCommand;
+    Command retcmd = NewNullCommand();
 
     // attempt to secure the lock
     bool own_lock = false;
@@ -101,20 +101,20 @@ Command TryRecvChannel(Channel *self) {
 
     // fail if we coulnt secure the lock
     if (own_lock == false)
-	return NullCommand;
+	return NewNullCommand();
 
     if (self->queue == NULL) {
 	atomic_store(&self->lock, 0);
-	return NullCommand;
+	return NewNullCommand();
     }
 
     // read from buffer
     Command read = self->queue[self->head];
     
     // if we got null command then simply drop lock and dont update channel
-    if (read != NullCommand) {
+    if (read.type != NullCommand) {
 	retcmd = read;
-	self->queue[self->head] = NullCommand;
+	self->queue[self->head] = NewNullCommand();
 	size_t new_head = (self->head + 1) % self->capacity;
 	self->head = new_head;
 	self->full = false;
@@ -148,8 +148,8 @@ bool TryClearChannel(Channel *self) {
     }
 
     // clear buffer
-    for (int i = 0; i < self->capacity; i++) {
-	self->queue[i] = NullCommand;
+    for (size_t i = 0; i < self->capacity; i++) {
+	self->queue[i] = NewNullCommand();
     }
     self->head = 0;
     self->tail = 0;

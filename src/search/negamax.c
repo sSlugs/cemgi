@@ -3,10 +3,22 @@
 #include "eval/evaluation.h"
 #include "movegen/move.h"
 #include "movegen/movegen.h"
+#include "utils/channel.h"
+#include <stdatomic.h>
 #include <stdio.h>
 
-int NegaMax(Board *board,TempSearchContext *temp_context,int depth) {
+int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context,int depth) {
     if (depth < 1) {
+	temp_context->leaf_nodes_searched++;
+
+	if (temp_context->leaf_nodes_searched & 2047) {
+	    bool stop = atomic_load(&uci_interface->stop_flag);
+
+	    if (stop) {
+		return STOP;
+	    }
+	}
+
 	return StaticEvaluation(board);
     }
 
@@ -32,8 +44,12 @@ int NegaMax(Board *board,TempSearchContext *temp_context,int depth) {
 	    continue;
 	}
 	possible_mate = false;
-	int eval = -NegaMax(board, temp_context, depth - 1);
+	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1);
 	UndoMove(board, move, undo);
+
+	if (eval == -STOP) {
+	    return STOP;
+	}
 
 	if (eval > best_eval) {
 	    best_eval = eval;
@@ -42,7 +58,7 @@ int NegaMax(Board *board,TempSearchContext *temp_context,int depth) {
 
     if (possible_mate) {
 	if (InCheck(board)) {
-	    return -INF;
+	    return -MATE;
 	} else {
 	    return 0;
 	}
@@ -51,7 +67,7 @@ int NegaMax(Board *board,TempSearchContext *temp_context,int depth) {
     return best_eval;
 }
 
-Move RootNegaMax(Board *board, TempSearchContext *temp_context, int depth) {
+Move RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext *temp_context, int depth) {
     if (depth < 1) {
 	return 0;
     }
@@ -74,8 +90,12 @@ Move RootNegaMax(Board *board, TempSearchContext *temp_context, int depth) {
 	    UndoMove(board, move, undo);
 	    continue;
 	}
-	int eval = -NegaMax(board, temp_context, depth - 1);
+	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1);
 	UndoMove(board, move, undo);
+
+	if (eval == -STOP) {
+	    return STOP_MOVE;
+	}
 
 	if (eval > best_eval) {
 	    best_eval = eval;

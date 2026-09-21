@@ -1,7 +1,10 @@
 #include "movegen/move.h"
 #include "board/board.h"
+#include "movegen/movegen.h"
 #include "utils/bitboard.h"
+#include "utils/channel.h"
 #include "utils/types.h"
+#include <string.h>
 #include <stdio.h>
 
 static char COLS_TO_LETTERS[8] = {'a','b','c','d','e','f','g','h'};
@@ -303,6 +306,59 @@ void MoveToUci(Move move, char str[6]) {
     }
 
     str[index] = '\0';
+}
+
+Move UciToMove(Board *board, const char *str) {
+    MoveList movelist = MoveListNew();
+    GenPseudoLegalMoves(board, &movelist);
+
+    char src_str[2];
+    memcpy(src_str,str,2);
+    char dst_str[2];
+    memcpy(dst_str,&str[2],2);
+    Square src = StrToSquare(src_str);
+    Square dst = StrToSquare(dst_str);
+
+    Move desired_move = MoveNew(src,dst);
+
+    for (size_t i = 0; i < movelist.len; i++) {
+	Move move = movelist.data[i];
+
+	if (desired_move == (move & (SOURCE | DEST))) {
+	    State state = MakeMove(board, desired_move);
+	    if (EnemyInCheck(board)) {
+		UndoMove(board, move, state);
+		return NULL_MOVE;
+	    }
+	    UndoMove(board, move, state);
+
+	    if (move & PROMOTION) {
+		move &= (!SPECIALS);
+		move |= CharToPromotionMask(str[4]);
+	    }
+
+	    return move;
+	}
+    }
+
+    return NULL_MOVE;
+}
+
+u16 CharToPromotionMask(const char promotion_char) {
+    switch (promotion_char) {
+
+	case 'r':
+	    return ROOK_PROMO;
+
+	case 'b':
+	    return BISHOP_PROMO;
+
+	case 'n':
+	    return KNIGHT_PROMO;
+
+	default:
+	    return QUEEN_PROMO;
+    }
 }
 
 //

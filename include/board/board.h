@@ -50,6 +50,7 @@ void BoardPrint(Board *self);
 
 // Temp function before incremental attack maps are implemented
 bool SquareAttackedByColour(Board *board, Square sq, Colour colour);
+bool SquareAttackedByPiece(Board *board, Square sq, Piece piece);
 
 bool InCheck(Board *board);
 bool EnemyInCheck(Board *board);

@@ -3,7 +3,6 @@ Another fucking chess engine. Written in C this time because i wanna learn C.
 
 ### Notes
     -add support for cpus with and without BMI
-    -add tests and benchmarks for movegen
     
 ### Features
     -magic bitboards

@@ -7,7 +7,7 @@
 
 /*
     Encoding: first 6 bits are the SOURCE sq (6), the next 6 bits are DEST square (12),
-    13th bit is promotion, 14th bit is capture, 15th is special 1. and 16th is special 2.
+    16th bit is promotion, 15th bit is capture, 14th is special 1. and 13th is special 0.
     mix of the specials determine move type, see table below
 
     code  |  promotion   capture    special 1    special 0  | Move
@@ -33,6 +33,7 @@
 #define SOURCE 0x3f
 #define DEST 0xfc0
 #define MOVE_FLAGS 0xf000
+#define SPECIALS 0xc000
 
 #define QUIET_MOVE 0x0
 #define DOUBLE_PAWN_PUSH 0x1000
@@ -42,7 +43,7 @@
 #define EP_CAPTURE 0x5000
 #define SINGLE_PAWN_PUSH 0x6000
 // skip 0x7000 as it isnt being used
-#define PROMO 0x8000
+#define PROMOTION 0x8000
 #define KNIGHT_PROMO 0x8000
 #define BISHOP_PROMO 0x9000
 #define ROOK_PROMO 0xa000
@@ -56,6 +57,7 @@
 // Move stuff
 
 #define NULL_MOVE 0x0
+#define STOP_MOVE 0x8000
 
 // small amount of information about a board state
 typedef uint32_t State;
@@ -75,6 +77,12 @@ void UndoMove(Board *board, Move move, State state);
 
 // fill string with chars of uci. MUST HAVE ATLEAST 6 CHARS ALLOCATED!!!
 void MoveToUci(Move move, char str[6]);
+
+// returns null move if its ilegal
+Move UciToMove(Board *board, const char str[6]);
+
+// defualts to queen promo
+u16 CharToPromotionMask(const char promotion_char);
 
 // state stuff
 

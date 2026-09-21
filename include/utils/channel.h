@@ -1,5 +1,7 @@
 #ifndef CHANNEL_H
 #define CHANNEL_H
+#include "board/board.h"
+#include "movegen/move.h"
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -9,8 +11,46 @@
 //
 
 typedef enum {
-    NullCommand
+    NullCommand,
+    Quit,
+    UciNewGame,
+    FlipTurn,
+    PrintEval,
+    PrintBoard,
+    Go,
+    Position,
+} CommandType;
+
+typedef struct {
+    int depth;	
+    // in milliseconds
+    u64 movetime;
+} GoArgs;
+
+typedef struct {
+    CommandType type;
+    union {
+	GoArgs go;
+
+	struct {
+	    Board board;
+	} position;
+    };
 } Command;
+
+static inline Command NewNullCommand() {
+    return (Command){0};
+}
+
+typedef struct {
+    const char *name;
+    Command (*parse)(char **args);
+} CommandDef;
+
+typedef struct {
+    atomic_bool stop_flag;
+    atomic_bool engine_searching;
+} AtomicInterface;
 
 typedef struct {
     Command *queue;
@@ -34,7 +74,7 @@ Command TryRecvChannel(Channel *self);
 // returns whether channel was cleared succesfully
 bool TryClearChannel(Channel *self);
 
-void FreeChannel(Channel *self) {
+static void FreeChannel(Channel *self) {
     free(self->queue);
 }
 
