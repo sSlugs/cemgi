@@ -7,12 +7,11 @@
 typedef enum {
     Eval,
     Mate,
-    Null,
 } ScoreType;
 
 typedef struct {
     int value;
-    ScoreType score;
+    ScoreType type;
 } Score;
 
 typedef struct {
@@ -24,7 +23,6 @@ typedef struct {
 static void ClearSearchResults(SearchResults *results) {
     results->nodes = 0;
     results->bestmove = NULL_MOVE;
-    results->score = (Score){.value = Null};
 }
 
 void Search(Board *board, AtomicInterface *uci_interface, GoArgs go_args);

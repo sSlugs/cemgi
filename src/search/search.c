@@ -6,6 +6,11 @@
 #include <stdatomic.h>
 #include <stdio.h>
 
+static const char *SCORE_TYPE_TO_STRING[2] = {
+    "cp",
+    "mate",
+};
+
 void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
     TempSearchContext temp_context = TempSearchContextNew();
 
@@ -55,7 +60,8 @@ void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
 
 	char buf[6];
 	MoveToUci(move, buf);
-	printf("info depth %d nodes %" PRIu64 " nps %" PRIu64 " time %"PRIu64" pv %s\n",depth,temp_context.searchresults.nodes,
+	printf("info depth %d score %s %d nodes %" PRIu64 " nps %" PRIu64 " time %"PRIu64" pv %s\n",
+		depth,SCORE_TYPE_TO_STRING[temp_context.searchresults.score.type],temp_context.searchresults.score.value,temp_context.searchresults.nodes,
 		((temp_context.searchresults.nodes / ms) * 1000),ms,buf);
     }
 
