@@ -81,7 +81,13 @@ int main(void) {
 		break;
 
 	    case Go:
-		Search(&main_board, &interface.atomic_flags, cmd.go);
+		if (cmd.go.is_perft) {
+		    printf("\n");
+		    PerftDivide(&main_board, cmd.go.depth);
+		    printf("\n");
+		} else {
+		    Search(&main_board, &interface.atomic_flags, cmd.go);
+		}
 		break;
 	    
 	    case Position:

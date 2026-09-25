@@ -14,14 +14,13 @@ typedef struct {
 
 static TempSearchContext TempSearchContextNew() {
     TempSearchContext context = {0};
-
     return context;
 }
 
 // returns the evaluation of the board
 int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
 
-Move RootNegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
+void RootNegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
 
 
 #endif

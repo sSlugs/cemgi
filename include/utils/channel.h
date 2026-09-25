@@ -25,6 +25,8 @@ typedef struct {
     int depth;	
     // in milliseconds
     u64 movetime;
+
+    bool is_perft;
 } GoArgs;
 
 typedef struct {

@@ -67,9 +67,9 @@ int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem
     return best_eval;
 }
 
-Move RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext *temp_context, int depth) {
+void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext *temp_context, int depth) {
     if (depth < 1) {
-	return 0;
+	return;
     }
 
     // setup
@@ -94,7 +94,8 @@ Move RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
 	UndoMove(board, move, undo);
 
 	if (eval == -STOP) {
-	    return STOP_MOVE;
+	     temp_context->searchresults.bestmove = STOP_MOVE;
+	     return;
 	}
 
 	if (eval > best_eval) {
@@ -104,5 +105,5 @@ Move RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
     }
     
     temp_context->searchresults.bestmove = best_move;
-    return 0;
+    return;
 }

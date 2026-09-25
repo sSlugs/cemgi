@@ -165,6 +165,13 @@ Command ParseGo(char *token) {
 	    cmd.go.movetime = StringToNumber(token);
 	}
 
+	else if (strcmp(token,"perft") == 0) {
+	    token = strtok(NULL, " ");
+	    cmd.go.depth = StringToNumber(token);
+	    cmd.go.is_perft = true;
+	    break;
+	}
+
 	token = strtok(NULL, " ");
     }
 

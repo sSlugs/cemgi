@@ -1,11 +1,13 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 #include "board/board.h"
+#include "movegen/move.h"
 #include "utils/channel.h"
 
 typedef enum {
     Eval,
     Mate,
+    Null,
 } ScoreType;
 
 typedef struct {
@@ -21,8 +23,8 @@ typedef struct {
 
 static void ClearSearchResults(SearchResults *results) {
     results->nodes = 0;
-    results->bestmove = 0;
-    results->score = (Score){0};
+    results->bestmove = NULL_MOVE;
+    results->score = (Score){.value = Null};
 }
 
 void Search(Board *board, AtomicInterface *uci_interface, GoArgs go_args);
