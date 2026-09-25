@@ -9,7 +9,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 
-int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context,int depth, int ply) {
+int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context,int depth, int alpha, int beta, int ply) {
     if (depth < 1) {
 	temp_context->searchresults.nodes++;
 
@@ -25,7 +25,6 @@ int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem
     }
 
     // setup
-    int best_eval = -INF;
     bool possible_mate = true;
 
     // generate moves
@@ -46,15 +45,19 @@ int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem
 	    continue;
 	}
 	possible_mate = false;
-	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, ply + 1);
+	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, -beta, -alpha, ply + 1);
 	UndoMove(board, move, undo);
 
 	if (eval == -STOP) {
 	    return STOP;
 	}
 
-	if (eval > best_eval) {
-	    best_eval = eval;
+	if (eval >= beta) {
+	    return beta;
+	}
+
+	if (eval > alpha) {
+	    alpha = eval;
 	}
     }
 
@@ -67,7 +70,7 @@ int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem
 	}
     }
 
-    return best_eval;
+    return alpha;
 }
 
 void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext *temp_context, int depth) {
@@ -76,8 +79,9 @@ void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
     }
 
     // setup
-    int best_score = -INF;
     Move best_move = NULL_MOVE;
+    int alpha = -INF;
+    int beta = INF;
 
     // generate moves
     MoveList *movelist = &temp_context->searchlist[depth];
@@ -93,7 +97,7 @@ void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
 	    UndoMove(board, move, undo);
 	    continue;
 	}
-	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, 1);
+	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, -beta, -alpha, 1);
 	UndoMove(board, move, undo);
 
 	if (eval == -STOP) {
@@ -101,26 +105,26 @@ void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
 	     return;
 	}
 
-	if (eval > best_score) {
-	    best_score = eval;
+	if (eval > alpha) {
+	    alpha = eval;
 	    best_move = move;
 	}
     }
 
     // if our best score is checkmating
-    if (best_score >= (MATE - MAX_PLY)) {
-	temp_context->searchresults.score.value = MATE - best_score;
+    if (alpha >= (MATE - MAX_PLY)) {
+	temp_context->searchresults.score.value = MATE - alpha;
 	temp_context->searchresults.score.type = Mate;
     } 
     
     // if we best score is getting checkmated
-    else if (best_score <= ((-MATE) + MAX_PLY)) {
-	temp_context->searchresults.score.value = MATE + best_score;
+    else if (alpha <= ((-MATE) + MAX_PLY)) {
+	temp_context->searchresults.score.value = MATE + alpha;
 	temp_context->searchresults.score.type = Mate;
     } 
 
     else {
-	temp_context->searchresults.score.value = best_score;
+	temp_context->searchresults.score.value = alpha;
 	temp_context->searchresults.score.type = Eval;
     }
     

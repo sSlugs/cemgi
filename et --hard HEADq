@@ -1,0 +1,85 @@
+[1mdiff --git a/include/search/negamax.h b/include/search/negamax.h[m
+[1mindex f49da7b..5dc0b35 100644[m
+[1m--- a/include/search/negamax.h[m
+[1m+++ b/include/search/negamax.h[m
+[36m@@ -18,7 +18,7 @@[m [mstatic TempSearchContext TempSearchContextNew() {[m
+ }[m
+ [m
+ // returns the evaluation of the board[m
+[31m-int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth, int ply);[m
+[32m+[m[32mint NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth, int alpha, int beta, int ply);[m
+ [m
+ void RootNegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);[m
+ [m
+[1mdiff --git a/src/search/negamax.c b/src/search/negamax.c[m
+[1mindex 7d06c5f..7296d45 100644[m
+[1m--- a/src/search/negamax.c[m
+[1m+++ b/src/search/negamax.c[m
+[36m@@ -9,7 +9,7 @@[m
+ #include <stdatomic.h>[m
+ #include <stdio.h>[m
+ [m
+[31m-int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context,int depth, int ply) {[m
+[32m+[m[32mint NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int alpha, int beta, int depth, int ply) {[m
+     if (depth < 1) {[m
+ 	temp_context->searchresults.nodes++;[m
+ [m
+[36m@@ -25,7 +25,6 @@[m [mint NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem[m
+     }[m
+ [m
+     // setup[m
+[31m-    int best_eval = -INF;[m
+     bool possible_mate = true;[m
+ [m
+     // generate moves[m
+[36m@@ -46,15 +45,21 @@[m [mint NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem[m
+ 	    continue;[m
+ 	}[m
+ 	possible_mate = false;[m
+[31m-	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, ply + 1);[m
+[32m+[m	[32mint eval = -NegaMax(board, uci_interface, temp_context, depth - 1, -beta, -alpha, ply + 1);[m
+ 	UndoMove(board, move, undo);[m
+ [m
+ 	if (eval == -STOP) {[m
+ 	    return STOP;[m
+ 	}[m
+ [m
+[31m-	if (eval > best_eval) {[m
+[31m-	    best_eval = eval;[m
+[32m+[m	[32m// fail-high node[m
+[32m+[m	[32mif (eval >= beta) {[m
+[32m+[m	[32m    return beta;[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m	[32m// pv-node[m
+[32m+[m	[32mif (eval > alpha) {[m
+[32m+[m	[32m    alpha = eval;[m
+ 	}[m
+     }[m
+ [m
+[36m@@ -67,7 +72,7 @@[m [mint NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *tem[m
+ 	}[m
+     }[m
+ [m
+[31m-    return best_eval;[m
+[32m+[m[32m    return alpha;[m
+ }[m
+ [m
+ void RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext *temp_context, int depth) {[m
+[36m@@ -79,6 +84,7 @@[m [mvoid RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext[m
+     int best_score = -INF;[m
+     Move best_move = NULL_MOVE;[m
+ [m
+[32m+[m
+     // generate moves[m
+     MoveList *movelist = &temp_context->searchlist[depth];[m
+     GenPseudoLegalMoves(board, movelist);[m
+[36m@@ -93,7 +99,7 @@[m [mvoid RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext[m
+ 	    UndoMove(board, move, undo);[m
+ 	    continue;[m
+ 	}[m
+[31m-	int eval = -NegaMax(board, uci_interface, temp_context, depth - 1, 1);[m
+[32m+[m	[32mint eval = -NegaMax(board, uci_interface, temp_context, depth - 1, -INF, INF, 1);[m
+ 	UndoMove(board, move, undo);[m
+ [m
+ 	if (eval == -STOP) {[m

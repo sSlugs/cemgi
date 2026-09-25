@@ -18,7 +18,7 @@ static TempSearchContext TempSearchContextNew() {
 }
 
 // returns the evaluation of the board
-int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth, int ply);
+int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth, int alpha, int beta, int ply);
 
 void RootNegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context, int depth);
 
