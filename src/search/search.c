@@ -32,21 +32,31 @@ void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
     // main search
 
     for (int depth = 1; depth <= go_args.depth; depth++) {
+	struct timespec start, end;
 	ClearSearchResults(&temp_context.searchresults);
 
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	RootNegaMax(board, uci_interface, &temp_context, depth);
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	u64 ms = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0;
+
+	if (ms == 0) {
+	    ms = 1;
+	}
+
 	Move move = temp_context.searchresults.bestmove;
 
 	if (move == STOP_MOVE) {
 	    atomic_store(&uci_interface->stop_flag, false);
 	    break;
 	}
+
 	bestmove = move;
 
 	char buf[6];
 	MoveToUci(move, buf);
-
-	printf("info depth %d nodes %" PRIu64 " pv %s\n",depth,temp_context.searchresults.nodes,buf);
+	printf("info depth %d nodes %" PRIu64 " nps %" PRIu64 " time %"PRIu64" pv %s\n",depth,temp_context.searchresults.nodes,
+		((temp_context.searchresults.nodes / ms) * 1000),ms,buf);
     }
 
     atomic_store(&uci_interface->engine_searching, false);
