@@ -3,12 +3,13 @@
 #include "board/board.h"
 #include "globals.h"
 #include "movegen/move.h"
+#include "search/search.h"
 #include "utils/channel.h"
 
 // TempSearchContext, data does not persist between searches
 typedef struct {
     MoveList searchlist[MAX_PLY];
-    u64 leaf_nodes_searched;
+    SearchResults searchresults;
 } TempSearchContext;
 
 static TempSearchContext TempSearchContextNew() {

@@ -12,9 +12,11 @@ int UciMainLoop(ThreadInterface *interface) {
     char buffer[1024];
     Channel *tx = &interface->channel;
 
-    while (1) {
-	fgets(buffer, sizeof(buffer), stdin);
-	buffer[strlen(buffer) - 1] = 0;
+    // remove buffer for stdout
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+	buffer[strcspn(buffer, "\n")] = '\0';
 
 	//
 	// Non multi-word commands
@@ -38,6 +40,8 @@ For any further information, i am sorry.\n\n");
 	} 
 
 	else if (strcmp(buffer,"uci") == 0) {
+	    printf("id name cemgi\n");
+	    printf("id author skrunkler\n");
 	    printf("uciok\n");
 	} 
 

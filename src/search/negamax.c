@@ -9,9 +9,9 @@
 
 int NegaMax(Board *board, AtomicInterface *uci_interface, TempSearchContext *temp_context,int depth) {
     if (depth < 1) {
-	temp_context->leaf_nodes_searched++;
+	temp_context->searchresults.nodes++;
 
-	if (temp_context->leaf_nodes_searched & 2047) {
+	if (temp_context->searchresults.nodes & 2047) {
 	    bool stop = atomic_load(&uci_interface->stop_flag);
 
 	    if (stop) {
@@ -103,5 +103,6 @@ Move RootNegaMax(Board *board, AtomicInterface *uci_interface,TempSearchContext 
 	}
     }
     
-    return best_move;
+    temp_context->searchresults.bestmove = best_move;
+    return 0;
 }

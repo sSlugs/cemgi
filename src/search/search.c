@@ -14,6 +14,7 @@ void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
 	return;
     }
 
+    // if movetime is set
     TimingThreadArgs timing_thread_args;
     pthread_t timing_thread;
     if (go_args.movetime > 0) {
@@ -28,10 +29,14 @@ void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
 
     Move bestmove = NULL_MOVE;
 
-    for (int i = 1; i <= go_args.depth; i++) {
-	temp_context.leaf_nodes_searched = 0;
+    // main search
 
-	Move move = RootNegaMax(board, uci_interface, &temp_context, i);
+    for (int depth = 1; depth <= go_args.depth; depth++) {
+	ClearSearchResults(&temp_context.searchresults);
+
+	RootNegaMax(board, uci_interface, &temp_context, depth);
+	Move move = temp_context.searchresults.bestmove;
+
 	if (move == STOP_MOVE) {
 	    atomic_store(&uci_interface->stop_flag, false);
 	    break;
@@ -41,11 +46,12 @@ void Search(Board *board, AtomicInterface *uci_interface,GoArgs go_args) {
 	char buf[6];
 	MoveToUci(move, buf);
 
-	printf("info depth %d nodes %" PRIu64 " pv %s\n",i,temp_context.leaf_nodes_searched,buf);
+	printf("info depth %d nodes %" PRIu64 " pv %s\n",depth,temp_context.searchresults.nodes,buf);
     }
 
     atomic_store(&uci_interface->engine_searching, false);
 
+    // clean up movetime
     if (go_args.movetime > 0) {
 	atomic_store(&timing_thread_args.end_timing_early, true);
 	pthread_join(timing_thread, NULL);

@@ -49,8 +49,6 @@ int main(void) {
     // Setup for main loop
     //
     
-    TimingThreadArgs timing_thread_args;
-    
     bool quit = false;
     Board main_board = BoardNew();
 
